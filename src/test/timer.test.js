@@ -1,5 +1,7 @@
 // Timer.test.js
 
+jest.useFakeTimers();
+jest.spyOn(global, 'clearInterval');
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
