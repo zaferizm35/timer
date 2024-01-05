@@ -26,17 +26,18 @@ describe('Timer Birim Testleri', () => {
     jest.useRealTimers();
   });
 
-  test('Durdur butonuna tıklanınca timer duruyor', () => {
-    jest.useFakeTimers();
+  test('"Durdur" butonuna tıklanınca timer duruyor', () => {
     const { getByText } = render(<Timer />);
     
     fireEvent.click(getByText('Start'));
-    jest.advanceTimersByTime(3000); // 3 saniye ilerlet
+    jest.advanceTimersByTime(3000); // 3 saniye zamanlayıcıyı ilerlet
     fireEvent.click(getByText('Stop'));
     
     expect(clearInterval).toHaveBeenCalledTimes(1);
+
     jest.useRealTimers();
   });
+
 
   test('Sıfırla butonuna tıklanınca timer sıfırlanıyor', () => {
     const { getByText } = render(<Timer />);
@@ -58,3 +59,7 @@ describe('TimerButton Birim Testleri', () => {
     fireEvent.click(getByText('Test'));
     expect(mockFunction).toHaveBeenCalledTimes(1);
     }); });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
