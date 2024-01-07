@@ -18,6 +18,8 @@ describe('Timer Birim Testleri', () => {
     jest.clearAllTimers(); // Her testten sonra zamanlayıcıları temizliyoruz
   });
 
+  
+
   test('Timer komponenti render ediliyor ve başlangıçta 25:00 gösteriyor', () => {
     const { getByText } = render(<Timer />);
     expect(getByText('25:00')).toBeInTheDocument();
@@ -78,6 +80,38 @@ describe('Timer ve TimerButton Entegrasyon Testleri', () => {
     jest.runOnlyPendingTimers();
     jest.useRealTimers();
     jest.clearAllMocks();
+  });
+  test('Start butonuna iki kez basıldığında timer durmuyor', () => {
+    const { getByText } = render(<Timer />);
+    const startButton = getByText('Start');
+
+    // İlk kez Start butonuna basarak timer'ı başlat
+    fireEvent.click(startButton);
+    
+    // Zamanın ilerlemesini taklit et
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    // Timer'ın başladığını ve bir saniye geçtiğini doğrula
+    expect(getByText('24:59')).toBeInTheDocument();
+
+    // Zamanlayıcının o anki değerini alma
+    const initialValue = getByText('24:59').textContent;
+
+    // İkinci kez Start butonuna bas
+    fireEvent.click(startButton);
+
+    // Bir saniye daha ilerlet
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+
+    // İkinci kez Start butonuna bastıktan sonra timer'ın durmaması gerekiyor,
+    // yani zaman bir saniye ilerlemeli
+    expect(getByText('24:58')).toBeInTheDocument();
+    // Timer'ın ilk değeriyle şimdiki değeri eşleşmiyor olmalı
+    expect(getByText('24:58').textContent).not.toEqual(initialValue);
   });
 
   test('Başlat butonuna basıldığında Timer başlamalı ve Durdur butonuna basıldığında durmalı', async () => {
