@@ -142,7 +142,7 @@ describe('Timer and TimerButton integration  tests', () => {
     expect(getByText(lastTimeValue)).toBeInTheDocument();
   });
 
-  test('When press reset , yous should get 25:00', () => {
+  test('When press reset , you should get 25:00', () => {
     const { getByText } = render(<Timer />);
     const startButton = getByText('Start'); const resetButton = getByText('Reset');
 
