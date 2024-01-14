@@ -8,60 +8,60 @@ import Timer from '../components/Timer/Timer';
 import { waitFor } from '@testing-library/react';
 import TimerButton from '../components/TimerButton/TimerButton';
 
-// Timer komponenti için mock bir zamanlayici kullanilacak.
-jest.useFakeTimers(); // Tüm testler için fake timerlari kullaniyoruz
-jest.spyOn(global, 'clearInterval'); // clearInterval fonksiyonunu izlemeye aliyoruz
 
-// Timer Birim Testleri
-describe('Timer Birim Testleri', () => {
+jest.useFakeTimers(); // We are using fakeTimer
+jest.spyOn(global, 'clearInterval'); 
+
+// Timer Unit Tests
+describe('Timer Unit Tests', () => {
   afterEach(() => {
-    jest.clearAllTimers(); // Her testten sonra zamanlayicilari temizliyoruz
+    jest.clearAllTimers(); // After Every test , clear Timer
   });
 
   
 
-  test('Timer komponenti render ediliyor ve başlangiçta 25:00 gösteriyor', () => {
+  test('When App start , It shows 25;00', () => {
     const { getByText } = render(<Timer />);
     expect(getByText('25:00')).toBeInTheDocument();
   });
 
-  test('Başlat butonuna tiklaninca timer başliyor', () => {
+  test('When click timer button , Timer starts', () => {
     const { getByText } = render(<Timer />);
     
     fireEvent.click(getByText('Start'));
-    jest.advanceTimersByTime(1000); // 1 saniye ilerlet
+    jest.advanceTimersByTime(1000); // Count down 1 seconds
     expect(getByText('24:59')).toBeInTheDocument();
   });
 
-  test('"Durdur" butonuna tiklaninca timer duruyor', () => {
+  test('"STOP" button is working when pressed', () => {
     const { getByText } = render(<Timer />);
     
     fireEvent.click(getByText('Start'));
-    jest.advanceTimersByTime(3000); // 3 saniye zamanlayiciyi ilerlet
+    jest.advanceTimersByTime(3000); // 3 seconds count down
     fireEvent.click(getByText('Stop'));
     
     expect(global.clearInterval).toHaveBeenCalledTimes(1);
   });
 
-  test('Sifirla butonuna tiklaninca timer sifirlaniyor', () => {
+  test('When press reset button , You should see 25:00', () => {
     const { getByText } = render(<Timer />);
     
     fireEvent.click(getByText('Start'));
-    jest.advanceTimersByTime(5000); // Doğru kullanim// 5 saniye ilerlet
+    jest.advanceTimersByTime(5000); // 5 seconds count down
     fireEvent.click(getByText('Reset'));
     expect(getByText('25:00')).toBeInTheDocument();
   });
 });
 
-// TimerButton Birim Testleri
-describe('TimerButton Birim Testleri', () => {
-  test('TimerButton komponenti render ediliyor', () => {
+// TimerButton Unit Tests
+describe('TimerButton Unit Tests', () => {
+  test('TimerButton is starting', () => {
     const mockFunction = jest.fn();
     const { getByText } = render(<TimerButton buttonAction={mockFunction} buttonValue="Test" />);
     expect(getByText('Test')).toBeInTheDocument();
   });
 
-  test('TimerButton komponentine tiklaninca action tetikleniyor', () => {
+  test(' When press TimerButton component ,Action is triggered', () => {
     const mockFunction = jest.fn();
     const { getByText } = render(<TimerButton buttonAction={mockFunction} buttonValue="Test" />);
 
@@ -70,8 +70,8 @@ describe('TimerButton Birim Testleri', () => {
   });
 });
 
-// Timer ve TimerButton entegrasyon testleri
-describe('Timer ve TimerButton Entegrasyon Testleri', () => {
+// Timer and TimerButton integration  tests
+describe('Timer and TimerButton integration  tests', () => {
   beforeEach(() => {
     jest.useFakeTimers();
   });
@@ -81,45 +81,44 @@ describe('Timer ve TimerButton Entegrasyon Testleri', () => {
     jest.useRealTimers();
     jest.clearAllMocks();
   });
-  test('Start butonuna iki kez basildiğinda timer durmuyor', () => {
+  test('When press 2 times to Start button , Timer doesnt stop', () => {
     const { getByText } = render(<Timer />);
     const startButton = getByText('Start');
 
-    // İlk kez Start butonuna basarak timer'i başlat
+    // First press
     fireEvent.click(startButton);
     
-    // Zamanin ilerlemesini taklit et
+    // Timer start
     act(() => {
       jest.advanceTimersByTime(1000);
     });
 
-    // Timer'in başladiğini ve bir saniye geçtiğini doğrula
+    // Check timer
     expect(getByText('24:59')).toBeInTheDocument();
 
-    // Zamanlayicinin o anki değerini alma
+    // Take the timer time
     const initialValue = getByText('24:59').textContent;
 
-    // İkinci kez Start butonuna bas
+    // Press second time
     fireEvent.click(startButton);
 
-    // Bir saniye daha ilerlet
+    //Timer starts
     act(() => {
       jest.advanceTimersByTime(1000);
     });
 
-    // İkinci kez Start butonuna bastiktan sonra timer'in durmamasi gerekiyor,
-    // yani zaman bir saniye ilerlemeli
+    // Timer shouldnt be stop
     expect(getByText('24:58')).toBeInTheDocument();
-    // Timer'in ilk değeriyle şimdiki değeri eşleşmiyor olmali
+    // 1. time and 2. time is not equal
     expect(getByText('24:58').textContent).not.toEqual(initialValue);
   });
 
-  test('Başlat butonuna basildiğinda Timer başlamali ve Durdur butonuna basildiğinda durmali', async () => {
+  test('when press start buton it should start and when press stop button timer should stop', async () => {
     const { getByText } = render(<Timer />);
     const startButton = getByText('Start');
     const stopButton = getByText('Stop');
 
-    // Timer'i başlat ve 1 saniye ilerlet
+    // Start timer
     fireEvent.click(startButton);
     act(() => {
       jest.advanceTimersByTime(1000);
@@ -127,36 +126,36 @@ describe('Timer ve TimerButton Entegrasyon Testleri', () => {
     await waitFor(() => {
       expect(getByText('24:59')).toBeInTheDocument();
     });
-    // 1 saniye sonra Timer'in değeri değişmeli
+    // Timer value should change
     expect(getByText('24:59')).toBeInTheDocument();
 
-    // Timer'i durdur
+    // Stop timer
     fireEvent.click(stopButton);
     const lastTimeValue = getByText('24:59').textContent;
 
-    // 1 saniye daha ilerlet
+    // Count down 1 seconds
     act(() => {
       jest.advanceTimersByTime(1000);
     });
     
-    // Timer durduktan sonra değerinin değişmemesi gerekiyor
+    // Check if timer changed
     expect(getByText(lastTimeValue)).toBeInTheDocument();
   });
 
-  test('Sifirla butonuna basildiğinda Timer sifirlanmali', () => {
+  test('When press reset , yous should get 25:00', () => {
     const { getByText } = render(<Timer />);
     const startButton = getByText('Start'); const resetButton = getByText('Reset');
 
-    // Timer'i başlat ve 1 saniye ilerlet
+    // Start timer
     fireEvent.click(startButton);
     act(() => {
       jest.advanceTimersByTime(1000);
     });
     
-    // Sifirla butonuna bas
+    // Press reset button
     fireEvent.click(resetButton);
     
-    // Sifirla butonuna basildiktan sonra Timer'in ilk değerine dönmesi beklenir
+    // Check after pressing Reset Button
     expect(getByText('25:00')).toBeInTheDocument();
     }); 
   });
